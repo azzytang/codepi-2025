@@ -11,54 +11,34 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 RED = (255, 0, 0)
 
-# Graph parameters
-grid_spacing = 20  # Spacing between grid lines
-origin = (0, 700)  # Center of the screen
 
-# Line equation parameters
-m = 0.5  # Slope
-b = 0   # y-intercept (in graph units)
+grid_spacing = 20
+origin = (0, 700)
 
-# Convert graph units to screen pixels
+
+m = 0.5
+b = 0
 
 
 def graph_to_screen(x, y):
     screen_x = origin[0] + x * grid_spacing
-    screen_y = origin[1] - y * grid_spacing  # Invert y-axis
+    screen_y = origin[1] - y * grid_spacing
     return screen_x, screen_y
-
-# Function to calculate line points
 
 
 def calculate_line_points(m, b, width, spacing):
-    # Graph x-range: Convert screen width to graph units
+
     x_min = -width // (2 * spacing)
     x_max = width // (2 * spacing)
 
-    # Calculate y values for the line endpoints
     y1 = m * x_min + b
     y2 = m * x_max + b
 
-    # Convert graph coordinates to screen coordinates
     p1 = graph_to_screen(x_min, y1)
     p2 = graph_to_screen(x_max, y2)
     return p1, p2
 
 
-# def index_of(val, in_list):
-#     try:
-#         return in_list.index(val)
-#     except ValueError:
-#         return -1
-
-
-# def keypad(string, keysdown):
-#     key = index_of(True, keysdown)
-#     print(pygame.K_0, pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
-#           pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8, pygame.K_9)
-#     if pygame.K_0 <= key <= pygame.K_9:
-#         string += str(key - pygame.K_0)
-#     return string
 pygame.init()
 screen = pygame.display.set_mode((900, 700))
 clock = pygame.time.Clock()
@@ -157,6 +137,9 @@ boulder_done_iter = iter([boulder_done1])
 boulder_progress = pygame.image.load(
     './images/boulder_progress.png').convert_alpha()
 boulder_progress_rect = boulder_progress.get_rect(topleft=(0, 0))
+boulder_done_bg = pygame.image.load(
+    './images/boulder_done_bg.png').convert_alpha()
+boulder_done_bg_rect = boulder_done_bg.get_rect(topleft=(0, 0))
 
 
 # --------------------------    LAKE    --------------------------
@@ -223,6 +206,7 @@ town_alien2_selected = pygame.image.load(
     './images/alien_town2_selected.png').convert_alpha()
 town_alien2_selected_rect = town_alien2_selected.get_rect(topleft=(500, 500))
 
+
 # --------------------------    PART 1    --------------------------
 part1_bg = pygame.image.load(
     './images/part1/part1_bg.png').convert_alpha()
@@ -234,10 +218,19 @@ alien1_wall_dialogue_iter = iter([alien1_wall_dialogue])
 coefficient_text = font.render(
     "y = m x + b", True, 'black')
 coefficient_text_rect = coefficient_text.get_rect(topleft=(100, 200))
+alien1_done = font.render(
+    "You did it! The wall is broken!", True, 'black')
+alien1_done_rect = alien1_done.get_rect(topleft=(100, 200))
+
+alien1_done_iter = iter([alien1_done])
+
+past_wall_bg = pygame.image.load(
+    './images/past_wall_bg.png').convert_alpha()
+past_wall_bg_rect = past_wall_bg.get_rect(topleft=(0, 0))
 
 # --------------------------    GAME STATS/VARIABLES    --------------------------
 game_status = 'home'
-part1, part2, part3 = True, True, True
+part1, part2, part3 = False, False, False
 interact = 'tutorial'
 cutscene = 0
 
@@ -309,17 +302,28 @@ while True:
                 elif interact == 'boulder_progress':
                     interact = 'none'
                 elif interact == 'boulder_done':
-                    if dialogue := next(boulder_done_iter, None):
-                        dialogue_rect = dialogue.get_rect(topleft=(100, 150))
-                    else:
-                        part2 = True
-                        interact = 'part2_done'
+                    pass
+                    # if dialogue := next(boulder_done_iter, None):
+                    #     dialogue_rect = dialogue.get_rect(topleft=(100, 150))
+                    # else:
+                    #     part2 = True
+
             if game_status == 'part1':
                 if interact == 'alien1_wall':
                     if dialogue := next(alien1_wall_dialogue_iter, None):
                         dialogue_rect = dialogue.get_rect(topleft=(100, 200))
                     else:
                         interact = 'none'
+            if game_status == 'past_wall':
+                if back_button_rect.collidepoint(mouse_pos):
+                    game_status = 'home'
+                # if interact == 'alien1_done':
+                #     if dialogue := next(alien1_done_iter, None):
+                #         dialogue_rect = dialogue.get_rect(topleft=(100, 200))
+                #     else:
+                #         interact = 'none'
+                #         game_status = 'home'
+
         if event.type == pygame.KEYDOWN:
             if game_status == 'lake':
                 if event.key == pygame.K_BACKSPACE:
@@ -334,6 +338,32 @@ while True:
                         interact = 'bridge_wrong'
                     keypad_string = ""
                 if pygame.K_0 <= event.key <= pygame.K_9 and len(keypad_string) < 4:
+                    keypad_string += str(event.key - pygame.K_0)
+            elif game_status == 'part1':
+                if event.key == pygame.K_BACKSPACE:
+                    keypad_string = keypad_string[:-1]
+                elif event.key == pygame.K_RETURN:
+                    m = float(keypad_string)
+                    if keypad_string == '.7' or keypad_string == '0.7':
+                        part1 = True
+                        interact = 'none'
+                        game_status = 'past_wall'
+                    keypad_string = ""
+                if pygame.K_0 <= event.key <= pygame.K_9:
+                    keypad_string += str(event.key - pygame.K_0)
+                elif event.key == pygame.K_PERIOD:
+                    keypad_string += '.'
+            elif interact == 'boulder_progress':
+                if event.key == pygame.K_BACKSPACE:
+                    keypad_string = keypad_string[:-1]
+                elif event.key == pygame.K_RETURN:
+
+                    if keypad_string == '3':
+                        part2 = True
+                        interact = 'boulder_done'
+
+                    keypad_string = ""
+                elif pygame.K_0 <= event.key <= pygame.K_9:
                     keypad_string += str(event.key - pygame.K_0)
 
     if game_status == 'title':
@@ -386,8 +416,14 @@ while True:
             screen.blit(dialogue, dialogue_rect)
         elif interact == 'boulder_progress':
             screen.blit(boulder_progress, boulder_progress_rect)
+            keypad_text = font.render(keypad_string, True, 'black')
+            keypad_text_rect = keypad_text.get_rect(topleft=(0, 500))
+            screen.blit(keypad_text, keypad_text_rect)
         elif interact == 'boulder_done':
-            screen.blit(dialogue, dialogue_rect)
+            screen.blit(boulder_done_bg, boulder_done_bg_rect)
+            screen.blit(back_button, back_button_rect)
+            if back_button_rect.collidepoint(mouse_pos):
+                screen.blit(back_button_selected, back_button_selected_rect)
 
     elif game_status == 'lake':
         screen.fill('white')
@@ -442,30 +478,41 @@ while True:
 
             screen.blit(text_box, text_box_rect)
             screen.blit(dialogue, dialogue_rect)
+        elif interact == 'alien1_done':
+            screen.blit(text_box, text_box_rect)
+            screen.blit(dialogue, dialogue_rect)
         else:
             for x in range(0, WIDTH, grid_spacing):
                 pygame.draw.line(screen, GRAY, (x, 0),
-                                 (x, HEIGHT), 1)  # Vertical lines
+                                 (x, HEIGHT), 1)
             for y in range(0, HEIGHT, grid_spacing):
                 pygame.draw.line(screen, GRAY, (0, y), (WIDTH, y),
-                                 1)  # Horizontal lines
+                                 1)
 
-            # Draw axes
             pygame.draw.line(
-                screen, BLACK, (0, origin[1]), (WIDTH, origin[1]), 2)  # x-axis
+                screen, BLACK, (0, origin[1]), (WIDTH, origin[1]), 2)
             pygame.draw.line(
-                screen, BLACK, (origin[0], 0), (origin[0], HEIGHT), 2)  # y-axis
+                screen, BLACK, (origin[0], 0), (origin[0], HEIGHT), 2)
 
-            # Draw the y = mx + b line
-            p1, p2 = calculate_line_points(m, b, WIDTH, grid_spacing)
+            p1, p2 = calculate_line_points(m, b, 1600, grid_spacing)
             pygame.draw.line(screen, RED, p1, p2, 4)
-
-            # Update the display
-            pygame.display.flip()
+            coefficient_text = font.render(
+                f"y = {m}x + {b}", True, 'black')
+            coefficient_text_rect = coefficient_text.get_rect(
+                topleft=(0, 200))
             screen.blit(coefficient_text, coefficient_text_rect)
+            keypad_text = font.render(keypad_string, True, 'black')
 
-        if part1:
-            interact = 'alien1_done'
+            keypad_text_rect = keypad_text.get_rect(topleft=(100, 500))
+
+            screen.blit(keypad_text, keypad_text_rect)
+
+    elif game_status == 'past_wall':
+        screen.fill('white')
+        screen.blit(past_wall_bg, past_wall_bg_rect)
+        screen.blit(back_button, back_button_rect)
+        if back_button_rect.collidepoint(mouse_pos):
+            screen.blit(back_button_selected, back_button_selected_rect)
     elif game_status == 'rocket_fixed':
         screen.fill('white')
         screen.blit(rocket_fixed_bg, rocket_fixed_bg_rect)
