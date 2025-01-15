@@ -66,6 +66,10 @@ title_screen_rect = title_screen.get_rect(topleft=(0, 0))
 title_screen_button = pygame.image.load(
     './images/title screen/button.png').convert_alpha()
 title_screen_button_rect = title_screen_button.get_rect(center=(450, 550))
+title_screen_button_selected = pygame.image.load(
+    './images/title screen/button_selected.png').convert_alpha()
+title_screen_button_selected_rect = title_screen_button_selected.get_rect(
+    center=(450, 550))
 
 
 # --------------------------    CUTSCENES    --------------------------
@@ -166,6 +170,11 @@ bridge_done_bg = pygame.image.load(
     './images/bridge_done_bg.png').convert_alpha()
 bridge_done_bg_rect = bridge_done_bg.get_rect(topleft=(0, 0))
 
+lake_bg = pygame.image.load(
+    './images/lake_bg.png').convert_alpha()
+lake_bg_rect = lake_bg.get_rect(topleft=(0, 0))
+
+
 # --------------------------    TOWN    --------------------------
 town = pygame.image.load(
     './images/town.png').convert_alpha()
@@ -199,12 +208,6 @@ town_alien1_dialogue_iter = iter([town_alien1_dialogue1,
                                  town_alien1_dialogue2, town_alien1_dialogue3])
 dialogue = font.render("", True, 'black')
 dialogue_rect = dialogue.get_rect(topleft=(100, 200))
-town_alien2 = pygame.image.load(
-    './images/alien_town2.png').convert_alpha()
-town_alien2_rect = town_alien2.get_rect(topleft=(500, 500))
-town_alien2_selected = pygame.image.load(
-    './images/alien_town2_selected.png').convert_alpha()
-town_alien2_selected_rect = town_alien2_selected.get_rect(topleft=(500, 500))
 
 
 # --------------------------    PART 1    --------------------------
@@ -229,7 +232,7 @@ past_wall_bg = pygame.image.load(
 past_wall_bg_rect = past_wall_bg.get_rect(topleft=(0, 0))
 
 # --------------------------    GAME STATS/VARIABLES    --------------------------
-game_status = 'home'
+game_status = 'title'
 part1, part2, part3 = False, False, False
 interact = 'tutorial'
 cutscene = 0
@@ -285,8 +288,7 @@ while True:
                     game_status = 'home'
                 if town_alien1_rect.collidepoint(mouse_pos):
                     interact = 'alien1'
-                if town_alien2_rect.collidepoint(mouse_pos):
-                    interact = 'alien2'
+
                 if interact == 'alien1':
                     if dialogue := next(town_alien1_dialogue_iter, None):
                         dialogue_rect = dialogue.get_rect(topleft=(100, 200))
@@ -370,6 +372,9 @@ while True:
         screen.fill('white')
         screen.blit(title_screen, title_screen_rect)
         screen.blit(title_screen_button, title_screen_button_rect)
+        if title_screen_button_rect.collidepoint(mouse_pos):
+            screen.blit(title_screen_button_selected,
+                        title_screen_button_selected_rect)
     elif game_status == 'cutscene':
         screen.blit(cutscenes[cutscene], cutscene_rect)
     elif game_status == 'home':
@@ -427,7 +432,7 @@ while True:
 
     elif game_status == 'lake':
         screen.fill('white')
-        screen.blit(lake, lake_rect)
+        screen.blit(lake_bg, lake_bg_rect)
 
         keypad_text = font.render(keypad_string, True, 'black')
         keypad_text_rect = keypad_text.get_rect(topleft=(0, 500))
@@ -448,11 +453,9 @@ while True:
 
         if interact == 'none':
             screen.blit(town_bg, town_bg_rect)
-            screen.blit(town_alien2, town_alien2_rect)
             screen.blit(town_alien1, town_alien1_rect)
         elif interact == 'alien1':
             screen.blit(town_bg, town_bg_rect)
-            screen.blit(town_alien2, town_alien2_rect)
             screen.blit(town_alien1_dialogue, town_alien1_dialogue_rect)
             screen.blit(text_box, text_box_rect)
             screen.blit(dialogue, dialogue_rect)
@@ -462,12 +465,10 @@ while True:
             screen.blit(text_box, text_box_rect)
         else:
             screen.blit(town_alien1, town_alien1_rect)
-            screen.blit(town_alien2, town_alien2_rect)
 
         if town_alien1_rect.collidepoint(mouse_pos) and interact == 'none':
             screen.blit(town_alien1_selected, town_alien1_selected_rect)
-        if town_alien2_rect.collidepoint(mouse_pos) and interact == 'none':
-            screen.blit(town_alien2_selected, town_alien2_selected_rect)
+
         screen.blit(back_button, back_button_rect)
         if back_button_rect.collidepoint(mouse_pos):
             screen.blit(back_button_selected, back_button_selected_rect)
