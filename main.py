@@ -2,6 +2,49 @@ from sys import exit
 import pygame
 
 
+# Initialize Pygame
+
+WIDTH, HEIGHT = 900, 700
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+
+# Graph parameters
+grid_spacing = 20  # Spacing between grid lines
+origin = (0, 700)  # Center of the screen
+
+# Line equation parameters
+m = 0.5  # Slope
+b = 0   # y-intercept (in graph units)
+
+# Convert graph units to screen pixels
+
+
+def graph_to_screen(x, y):
+    screen_x = origin[0] + x * grid_spacing
+    screen_y = origin[1] - y * grid_spacing  # Invert y-axis
+    return screen_x, screen_y
+
+# Function to calculate line points
+
+
+def calculate_line_points(m, b, width, spacing):
+    # Graph x-range: Convert screen width to graph units
+    x_min = -width // (2 * spacing)
+    x_max = width // (2 * spacing)
+
+    # Calculate y values for the line endpoints
+    y1 = m * x_min + b
+    y2 = m * x_max + b
+
+    # Convert graph coordinates to screen coordinates
+    p1 = graph_to_screen(x_min, y1)
+    p2 = graph_to_screen(x_max, y2)
+    return p1, p2
+
+
 # def index_of(val, in_list):
 #     try:
 #         return in_list.index(val)
@@ -16,8 +59,6 @@ import pygame
 #     if pygame.K_0 <= key <= pygame.K_9:
 #         string += str(key - pygame.K_0)
 #     return string
-
-
 pygame.init()
 screen = pygame.display.set_mode((900, 700))
 clock = pygame.time.Clock()
@@ -85,6 +126,9 @@ part2_rocket_rect = part2_rocket.get_rect(topleft=(400, 300))
 part3_rocket = font.render(
     "Part 3 done", True, 'black')
 part3_rocket_rect = part3_rocket.get_rect(topleft=(400, 300))
+rocket_fixed_bg = pygame.image.load(
+    './images/rocket_fixed_bg.png').convert_alpha()
+rocket_fixed_bg_rect = rocket_fixed_bg.get_rect(topleft=(0, 0))
 
 # --------------------------    MOUNTAINS    --------------------------
 mountains = pygame.image.load(
@@ -183,11 +227,17 @@ town_alien2_selected_rect = town_alien2_selected.get_rect(topleft=(500, 500))
 part1_bg = pygame.image.load(
     './images/part1/part1_bg.png').convert_alpha()
 part1_bg_rect = part1_bg.get_rect(topleft=(0, 0))
-
+alien1_wall_dialogue = font.render(
+    "Change the coefficient of x to hit the weak points!", True, 'black')
+alien1_wall_dialogue_rect = alien1_wall_dialogue.get_rect(topleft=(100, 200))
+alien1_wall_dialogue_iter = iter([alien1_wall_dialogue])
+coefficient_text = font.render(
+    "y = m x + b", True, 'black')
+coefficient_text_rect = coefficient_text.get_rect(topleft=(100, 200))
 
 # --------------------------    GAME STATS/VARIABLES    --------------------------
 game_status = 'home'
-part1, part2, part3 = False, False, False
+part1, part2, part3 = True, True, True
 interact = 'tutorial'
 cutscene = 0
 
@@ -249,7 +299,7 @@ while True:
                         dialogue_rect = dialogue.get_rect(topleft=(100, 200))
                     else:
                         game_status = 'part1'
-                        interact = 'none'
+                        interact = 'alien1_wall'
             if game_status == 'mountains':
                 if interact == 'boulder':
                     if dialogue := next(mountains_dialogue_iter1, None):
@@ -264,6 +314,12 @@ while True:
                     else:
                         part2 = True
                         interact = 'part2_done'
+            if game_status == 'part1':
+                if interact == 'alien1_wall':
+                    if dialogue := next(alien1_wall_dialogue_iter, None):
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 200))
+                    else:
+                        interact = 'none'
         if event.type == pygame.KEYDOWN:
             if game_status == 'lake':
                 if event.key == pygame.K_BACKSPACE:
@@ -382,7 +438,37 @@ while True:
     elif game_status == 'part1':
         screen.fill('white')
         screen.blit(part1_bg, part1_bg_rect)
+        if interact == 'alien1_wall':
+
+            screen.blit(text_box, text_box_rect)
+            screen.blit(dialogue, dialogue_rect)
+        else:
+            for x in range(0, WIDTH, grid_spacing):
+                pygame.draw.line(screen, GRAY, (x, 0),
+                                 (x, HEIGHT), 1)  # Vertical lines
+            for y in range(0, HEIGHT, grid_spacing):
+                pygame.draw.line(screen, GRAY, (0, y), (WIDTH, y),
+                                 1)  # Horizontal lines
+
+            # Draw axes
+            pygame.draw.line(
+                screen, BLACK, (0, origin[1]), (WIDTH, origin[1]), 2)  # x-axis
+            pygame.draw.line(
+                screen, BLACK, (origin[0], 0), (origin[0], HEIGHT), 2)  # y-axis
+
+            # Draw the y = mx + b line
+            p1, p2 = calculate_line_points(m, b, WIDTH, grid_spacing)
+            pygame.draw.line(screen, RED, p1, p2, 4)
+
+            # Update the display
+            pygame.display.flip()
+            screen.blit(coefficient_text, coefficient_text_rect)
+
         if part1:
             interact = 'alien1_done'
+    elif game_status == 'rocket_fixed':
+        screen.fill('white')
+        screen.blit(rocket_fixed_bg, rocket_fixed_bg_rect)
+
     pygame.display.update()
     clock.tick(60)
