@@ -2,10 +2,7 @@ from sys import exit
 import pygame
 
 
-# Initialize Pygame
-
 WIDTH, HEIGHT = 900, 700
-# Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -16,8 +13,8 @@ grid_spacing = 20
 origin = (0, 700)
 
 
-m = 0.5
-b = 0
+m = 3
+b = 5
 
 
 def graph_to_screen(x, y):
@@ -50,14 +47,28 @@ back_button_selected = pygame.image.load(
     './images/back_button_selected.png').convert_alpha()
 back_button_selected_rect = back_button_selected.get_rect(topleft=(50, 50))
 
-alien_tutorial = pygame.image.load(
-    './images/alien_tutorial.png').convert_alpha()
-alien_tutorial_rect = alien_tutorial.get_rect(topleft=(100, 200))
 text_box = pygame.image.load(
     './images/text_box.png').convert_alpha()
 text_box_rect = text_box.get_rect(topleft=(30, 400))
 
-font = pygame.font.Font('./fonts/Stickman-Regular.ttf', 32)
+font = pygame.font.Font('./fonts/SpaceGrotesk-VariableFont_wght.ttf', 20)
+
+# --------------------------    TUTORIAL    --------------------------
+alien_tutorial = pygame.image.load(
+    './images/alien_tutorial.png').convert_alpha()
+alien_tutorial_rect = alien_tutorial.get_rect(topleft=(100, 200))
+alien_tutorial_dialogue = font.render(
+    "Hey are your okay?", True, 'black')
+alien_tutorial_dialogue2 = font.render(
+    "It looks like your rocket is broken.", True, 'black')
+alien_tutorial_dialogue3 = font.render(
+    "I can help you fix it, but you need to find the parts first.", True, 'black')
+alien_tutorial_dialogue4 = font.render(
+    "You can find the parts around here, just click around the map.", True, 'black')
+alien_tutorial_dialogue_iter = iter([alien_tutorial_dialogue,
+                                    alien_tutorial_dialogue2,
+                                    alien_tutorial_dialogue3,
+                                    alien_tutorial_dialogue4])
 
 # --------------------------    TITLE SCREEN    --------------------------
 title_screen = pygame.image.load(
@@ -75,12 +86,21 @@ title_screen_button_selected_rect = title_screen_button_selected.get_rect(
 # --------------------------    CUTSCENES    --------------------------
 cutscene1 = pygame.image.load(
     './images/cutscene/cutscene1.png').convert_alpha()
-cutscene2 = pygame.image.load(
-    './images/cutscene/cutscene2.png').convert_alpha()
-cutscene3 = pygame.image.load(
-    './images/cutscene/cutscene3.png').convert_alpha()
-cutscene_rect = cutscene1.get_rect(topleft=(0, 0))
-cutscenes = [cutscene1, cutscene2, cutscene3]
+cutscene1_rect = cutscene1.get_rect(topleft=(0, 0))
+cutscene_dialogue1 = font.render(
+    "ALERT! ALERT!", True, 'black')
+cutscene_dialogue1_rect = cutscene_dialogue1.get_rect(topleft=(100, 200))
+cutscene_dialogue2 = font.render(
+    "Critical failure detected in the propulsion system.", True, 'black')
+cutscene_dialogue2_rect = cutscene_dialogue2.get_rect(topleft=(100, 200))
+cutscene_dialogue3 = font.render(
+    "Warning: Trajectory unstable. Rocket integrity compromised.", True, 'black')
+cutscene_dialogue3_rect = cutscene_dialogue3.get_rect(topleft=(100, 200))
+cutscene_dialogue4 = font.render(
+    "Impact with nearby planet expected in 10... 9... 8...", True, 'black')
+cutscene_dialogue4_rect = cutscene_dialogue4.get_rect(topleft=(100, 200))
+cutscene_dialogue_iter1 = iter(
+    [cutscene_dialogue1, cutscene_dialogue2, cutscene_dialogue3, cutscene_dialogue4])
 
 
 # --------------------------    PLANET    --------------------------
@@ -98,21 +118,29 @@ rocket_broken_selected = pygame.image.load(
 rocket_broken_selected_rect = rocket_broken_selected.get_rect(
     topleft=(600, 400))
 rocket_broken_inside = pygame.image.load(
-    './images/cutscene/cutscene1.png').convert_alpha()
+    './images/rocket_broken_bg.png').convert_alpha()
 rocket_broken_inside_rect = rocket_broken_inside.get_rect(topleft=(0, 0))
 
-part1_rocket = font.render(
-    "Part 1 done", True, 'black')
-part1_rocket_rect = part1_rocket.get_rect(topleft=(400, 300))
-part2_rocket = font.render(
-    "Part 2 done", True, 'black')
-part2_rocket_rect = part2_rocket.get_rect(topleft=(400, 300))
-part3_rocket = font.render(
-    "Part 3 done", True, 'black')
-part3_rocket_rect = part3_rocket.get_rect(topleft=(400, 300))
 rocket_fixed_bg = pygame.image.load(
     './images/rocket_fixed_bg.png').convert_alpha()
 rocket_fixed_bg_rect = rocket_fixed_bg.get_rect(topleft=(0, 0))
+part1_item = pygame.image.load(
+    './images/part.png').convert_alpha()
+part1_item_rect = part1_item.get_rect(topleft=(100, 500))
+part2_item = pygame.image.load(
+    './images/part.png').convert_alpha()
+part2_item_rect = part2_item.get_rect(topleft=(300, 500))
+part3_item = pygame.image.load(
+    './images/part.png').convert_alpha()
+part3_item_rect = part3_item.get_rect(topleft=(500, 500))
+
+rocket_fixed_dialogue = font.render(
+    "You did it! With these parts, I fixed the rocket.", True, 'black')
+rocket_fixed_dialogue2 = font.render(
+    "Congrats on beating this game!", True, 'black')
+rocket_fixed_dialogue_rect = rocket_fixed_dialogue.get_rect(topleft=(100, 200))
+rocket_fixed_dialogue_iter = iter(
+    [rocket_fixed_dialogue, rocket_fixed_dialogue2])
 
 # --------------------------    MOUNTAINS    --------------------------
 mountains = pygame.image.load(
@@ -128,11 +156,24 @@ mountains_dialogue2 = font.render(
     "What's this? There's a pulley system attached.", True, 'black')
 mountains_dialogue2_rect = mountains_dialogue2.get_rect(topleft=(100, 150))
 mountains_dialogue3 = font.render(
-    "If the boulder is 15 kg, and the rocks are 5x kg, then what is x?", True, 'black')
-mountains_dialogue3_rect = mountains_dialogue3.get_rect(topleft=(100, 150))
-mountains_dialogue_iter1 = iter([mountains_dialogue1,
-                                 mountains_dialogue2, mountains_dialogue3])
+    "If the boulder is 300 kg, and there are 100 kg weights",  True, 'black')
 
+mountains_dialogue3_rect = mountains_dialogue3.get_rect(topleft=(100, 150))
+mountains_dialogue4 = font.render(
+    "How many weights do we need to lift the boulder?", True, 'black')
+mountains_dialogue4_rect = mountains_dialogue4.get_rect(topleft=(100, 150))
+mountains_dialogue5 = font.render(
+    "This can be modeled by the equation 300 = 100x", True, 'black')
+mountains_dialogue5_rect = mountains_dialogue5.get_rect(topleft=(100, 150))
+mountains_dialogue6 = font.render(
+    "What is the value of x?", True, 'black')
+mountains_dialogue6_rect = mountains_dialogue6.get_rect(topleft=(100, 150))
+mountains_dialogue_iter1 = iter([mountains_dialogue1,
+                                 mountains_dialogue2, mountains_dialogue3, mountains_dialogue4, mountains_dialogue5, mountains_dialogue6])
+
+boulder_bg = pygame.image.load(
+    './images/boulder_bg.png').convert_alpha()
+boulder_bg_rect = boulder_bg.get_rect(topleft=(0, 0))
 boulder_done1 = font.render(
     "It worked! There's the part!", True, 'black')
 boulder_done1_rect = boulder_done1.get_rect(topleft=(100, 150))
@@ -157,15 +198,15 @@ lake_dialogue1 = font.render(
     "The lake has a bridge, but there's a keypad to lower it.", True, 'black')
 lake_dialogue1_rect = lake_dialogue1.get_rect(topleft=(0, 500))
 lake_dialogue2 = font.render(
-    "To find the code, we need to solve 3x + 4 = 367", True, 'black')
+    "To find the code, we need to solve 3x + 4 = 3673", True, 'black')
 lake_dialogue2_rect = lake_dialogue2.get_rect(topleft=(0, 500))
 lake_dialogue_iter1 = iter([lake_dialogue1, lake_dialogue2])
 
 keypad_string = ""
 keypad_text = font.render(keypad_string, True, 'black')
-keypad_text_rect = keypad_text.get_rect(topleft=(0, 500))
+keypad_text_rect = keypad_text.get_rect(topleft=(100, 450))
 keypad_wrong = font.render("Wrong code", True, 'black')
-keypad_wrong_rect = keypad_wrong.get_rect(topleft=(0, 500))
+keypad_wrong_rect = keypad_wrong.get_rect(topleft=(100, 500))
 bridge_done_bg = pygame.image.load(
     './images/bridge_done_bg.png').convert_alpha()
 bridge_done_bg_rect = bridge_done_bg.get_rect(topleft=(0, 0))
@@ -199,15 +240,18 @@ town_alien1_dialogue1 = font.render(
     "I can lead you to one of the parts, but it is blocked by a wall.", True, 'black')
 town_alien1_dialogue1_rect = town_alien1_dialogue1.get_rect(topleft=(100, 200))
 town_alien1_dialogue2 = font.render(
-    "The wall has weak points that you can aim at with a linear equation of y = mx + b. (no gravity)", True, 'black')
+    "The wall has a weak point that you can hit.", True, 'black')
 town_alien1_dialogue2_rect = town_alien1_dialogue2.get_rect(topleft=(100, 200))
 town_alien1_dialogue3 = font.render(
-    "If the equation is correct, the wall will break.", True, 'black')
+    "You can use y = mx + b to aim at the weak point.", True, 'black')
 town_alien1_dialogue3_rect = town_alien1_dialogue3.get_rect(topleft=(100, 200))
+town_alien1_dialogue4 = font.render(
+    "If the equation is correct, the wall will break.", True, 'black')
+town_alien1_dialogue4_rect = town_alien1_dialogue4.get_rect(topleft=(100, 200))
 town_alien1_dialogue_iter = iter([town_alien1_dialogue1,
-                                 town_alien1_dialogue2, town_alien1_dialogue3])
+                                 town_alien1_dialogue2, town_alien1_dialogue3, town_alien1_dialogue4])
 dialogue = font.render("", True, 'black')
-dialogue_rect = dialogue.get_rect(topleft=(100, 200))
+dialogue_rect = dialogue.get_rect(topleft=(100, 450))
 
 
 # --------------------------    PART 1    --------------------------
@@ -249,11 +293,11 @@ while True:
                 if title_screen_button_rect.collidepoint(mouse_pos):
                     game_status = 'cutscene'
             if game_status == 'cutscene':
-
-                if cutscene >= 2:
-                    game_status = 'home'
+                if dialogue := next(cutscene_dialogue_iter1, None):
+                    dialogue_rect = dialogue.get_rect(topleft=(100, 450))
                 else:
-                    cutscene += 1
+                    game_status = 'home'
+                    interact = 'tutorial'
             if game_status == 'home':
                 if interact == 'none':
                     if rocket_broken_rect.collidepoint(mouse_pos):
@@ -266,39 +310,46 @@ while True:
                         interact = 'bridge'
                     elif town_rect.collidepoint(mouse_pos):
                         game_status = 'town'
-                else:
-                    interact = 'none'
+                if interact == 'tutorial':
+                    if dialogue := next(alien_tutorial_dialogue_iter, None):
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 450))
+                    else:
+                        interact = 'none'
 
             if game_status == 'rocket_broken':
                 if back_button_rect.collidepoint(mouse_pos):
                     game_status = 'home'
+                    interact = 'none'
             if game_status == 'mountains':
                 if back_button_rect.collidepoint(mouse_pos):
                     game_status = 'home'
+                    interact = 'none'
             if game_status == 'lake':
                 if back_button_rect.collidepoint(mouse_pos):
                     game_status = 'home'
+                    interact = 'none'
                 if interact == 'bridge':
                     if dialogue := next(lake_dialogue_iter1, None):
-                        dialogue_rect = dialogue.get_rect(topleft=(0, 500))
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 450))
                     else:
                         interact = 'none'
             if game_status == 'town':
                 if back_button_rect.collidepoint(mouse_pos):
                     game_status = 'home'
+                    interact = 'none'
                 if town_alien1_rect.collidepoint(mouse_pos):
                     interact = 'alien1'
 
                 if interact == 'alien1':
                     if dialogue := next(town_alien1_dialogue_iter, None):
-                        dialogue_rect = dialogue.get_rect(topleft=(100, 200))
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 450))
                     else:
                         game_status = 'part1'
                         interact = 'alien1_wall'
             if game_status == 'mountains':
                 if interact == 'boulder':
                     if dialogue := next(mountains_dialogue_iter1, None):
-                        dialogue_rect = dialogue.get_rect(topleft=(100, 150))
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 450))
                     else:
                         interact = 'boulder_progress'
                 elif interact == 'boulder_progress':
@@ -313,18 +364,22 @@ while True:
             if game_status == 'part1':
                 if interact == 'alien1_wall':
                     if dialogue := next(alien1_wall_dialogue_iter, None):
-                        dialogue_rect = dialogue.get_rect(topleft=(100, 200))
+                        dialogue_rect = dialogue.get_rect(topleft=(100, 450))
                     else:
                         interact = 'none'
             if game_status == 'past_wall':
                 if back_button_rect.collidepoint(mouse_pos):
                     game_status = 'home'
+                    interact = 'none'
                 # if interact == 'alien1_done':
                 #     if dialogue := next(alien1_done_iter, None):
                 #         dialogue_rect = dialogue.get_rect(topleft=(100, 200))
                 #     else:
                 #         interact = 'none'
                 #         game_status = 'home'
+            if game_status == 'rocket_fixed':
+                if dialogue := next(rocket_fixed_dialogue_iter, None):
+                    dialogue_rect = dialogue.get_rect(topleft=(100, 450))
 
         if event.type == pygame.KEYDOWN:
             if game_status == 'lake':
@@ -332,7 +387,7 @@ while True:
                     keypad_string = keypad_string[:-1]
                 elif event.key == pygame.K_RETURN:
 
-                    if keypad_string == '1234':
+                    if keypad_string == '1223':
                         interact = 'bridge_done'
                         part3 = True
                     else:
@@ -346,7 +401,7 @@ while True:
                     keypad_string = keypad_string[:-1]
                 elif event.key == pygame.K_RETURN:
                     m = float(keypad_string)
-                    if keypad_string == '.7' or keypad_string == '0.7':
+                    if keypad_string == '.2' or keypad_string == '0.2':
                         part1 = True
                         interact = 'none'
                         game_status = 'past_wall'
@@ -376,9 +431,10 @@ while True:
             screen.blit(title_screen_button_selected,
                         title_screen_button_selected_rect)
     elif game_status == 'cutscene':
-        screen.blit(cutscenes[cutscene], cutscene_rect)
+        screen.blit(cutscene1, cutscene1_rect)
+        screen.blit(text_box, text_box_rect)
+        screen.blit(dialogue, dialogue_rect)
     elif game_status == 'home':
-
         # keys = pygame.key.get_pressed()
         screen.fill('white')
         screen.blit(planet, planet_rect)
@@ -397,6 +453,7 @@ while True:
         if interact == 'tutorial':
             screen.blit(alien_tutorial, alien_tutorial_rect)
             screen.blit(text_box, text_box_rect)
+            screen.blit(dialogue, dialogue_rect)
     elif game_status == 'rocket_broken':
         screen.fill('white')
         screen.blit(rocket_broken_inside, rocket_broken_inside_rect)
@@ -404,25 +461,29 @@ while True:
         if back_button_rect.collidepoint(mouse_pos):
             screen.blit(back_button_selected, back_button_selected_rect)
         if part1:
-            screen.blit(part1_rocket, part1_rocket_rect)
+            screen.blit(part1_item, part1_item_rect)
         if part2:
-            screen.blit(part2_rocket, part2_rocket_rect)
+            screen.blit(part2_item, part2_item_rect)
         if part3:
-            screen.blit(part3_rocket, part3_rocket_rect)
+            screen.blit(part3_item, part3_item_rect)
         if part1 and part2 and part3:
             game_status = 'rocket_fixed'
+            dialogue = next(rocket_fixed_dialogue_iter, None)
+            dialogue_rect = dialogue.get_rect(topleft=(100, 450))
     elif game_status == 'mountains':
         screen.fill('white')
-        screen.blit(mountains, mountains_rect)
-        # screen.blit(back_button, back_button_rect)
-        # if back_button_rect.collidepoint(mouse_pos):
-        #     screen.blit(back_button_selected, back_button_selected_rect)
+
         if interact == 'boulder':
+            screen.blit(boulder_bg, boulder_bg_rect)
+            screen.blit(text_box, text_box_rect)
             screen.blit(dialogue, dialogue_rect)
+
         elif interact == 'boulder_progress':
             screen.blit(boulder_progress, boulder_progress_rect)
-            keypad_text = font.render(keypad_string, True, 'black')
-            keypad_text_rect = keypad_text.get_rect(topleft=(0, 500))
+            screen.blit(text_box, text_box_rect)
+            keypad_text = font.render(
+                'What is the value of x? ' + keypad_string, True, 'black')
+            keypad_text_rect = keypad_text.get_rect(topleft=(100, 450))
             screen.blit(keypad_text, keypad_text_rect)
         elif interact == 'boulder_done':
             screen.blit(boulder_done_bg, boulder_done_bg_rect)
@@ -433,14 +494,17 @@ while True:
     elif game_status == 'lake':
         screen.fill('white')
         screen.blit(lake_bg, lake_bg_rect)
-
-        keypad_text = font.render(keypad_string, True, 'black')
-        keypad_text_rect = keypad_text.get_rect(topleft=(0, 500))
-        screen.blit(keypad_text, keypad_text_rect)
+        screen.blit(text_box, text_box_rect)
 
         if interact == 'bridge':
+
             screen.blit(dialogue, dialogue_rect)
-        elif interact == 'bridge_wrong':
+        else:
+            keypad_text = font.render(
+                'What is the code to lower the bridge (3x + 4 = 3673)? ' + keypad_string, True, 'black')
+            keypad_text_rect = keypad_text.get_rect(topleft=(100, 450))
+            screen.blit(keypad_text, keypad_text_rect)
+        if interact == 'bridge_wrong':
             screen.blit(keypad_wrong, keypad_wrong_rect)
         elif interact == 'bridge_done':
             screen.blit(bridge_done_bg, bridge_done_bg_rect)
@@ -498,13 +562,14 @@ while True:
             p1, p2 = calculate_line_points(m, b, 1600, grid_spacing)
             pygame.draw.line(screen, RED, p1, p2, 4)
             coefficient_text = font.render(
-                f"y = {m}x + {b}", True, 'black')
+                f"equation: y = {m}x + {b}", True, 'black')
             coefficient_text_rect = coefficient_text.get_rect(
-                topleft=(0, 200))
+                topleft=(100, 100))
+            screen.blit(text_box, text_box.get_rect(topleft=(50, 50)))
             screen.blit(coefficient_text, coefficient_text_rect)
-            keypad_text = font.render(keypad_string, True, 'black')
+            keypad_text = font.render("m: " + keypad_string, True, 'black')
 
-            keypad_text_rect = keypad_text.get_rect(topleft=(100, 500))
+            keypad_text_rect = keypad_text.get_rect(topleft=(100, 150))
 
             screen.blit(keypad_text, keypad_text_rect)
 
@@ -517,6 +582,13 @@ while True:
     elif game_status == 'rocket_fixed':
         screen.fill('white')
         screen.blit(rocket_fixed_bg, rocket_fixed_bg_rect)
+        screen.blit(part1_item, part1_item_rect)
+        screen.blit(part2_item, part2_item_rect)
+        screen.blit(part3_item, part3_item_rect)
+        screen.blit(alien_tutorial, alien_tutorial_rect)
+
+        screen.blit(text_box, text_box_rect)
+        screen.blit(dialogue, dialogue_rect)
 
     pygame.display.update()
     clock.tick(60)
